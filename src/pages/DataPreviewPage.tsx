@@ -371,7 +371,7 @@ export function DataPreviewPage() {
       // Call API to load data
       await api.loadData(allData);
 
-      navigate('/complete');
+      navigate('/data-analytics');
     } finally {
       setProcessing(false);
     }

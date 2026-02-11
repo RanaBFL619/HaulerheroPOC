@@ -8,6 +8,7 @@ import { UploadPage } from '@/pages/UploadPage';
 import { FieldMappingPage } from '@/pages/FieldMappingPage';
 import { DataPreviewPage } from '@/pages/DataPreviewPage';
 import { CompletePage } from '@/pages/CompletePage';
+import DataAnalyticsPage from './pages/DataAnalyticsPage';
 
 function App() {
   return (
@@ -38,6 +39,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <DataPreviewPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/data-analytics"
+                element={
+                  <ProtectedRoute>
+                    <DataAnalyticsPage />
                   </ProtectedRoute>
                 }
               />
