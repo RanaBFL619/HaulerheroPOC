@@ -6,6 +6,7 @@ import { api } from "@/services/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, ChevronDown, Filter } from "lucide-react";
+import { TableData } from "@/lib/TableData";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -16,6 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { DuplicateResolveModal } from "@/components/DuplicateResolveModal";
 
 const MATCH_KEY = "Email";
 
@@ -26,6 +28,10 @@ const DataAnalyticsPage = () => {
   const [headers, setHeaders] = useState<string[]>([]);
   const [comparedRows, setComparedRows] = useState<any[]>([]);
   const [originalRowMap, setOriginalRowMap] = useState<Map<string, any>>(new Map());
+  const [duplicateMap, setDuplicateMap] = useState<Map<string, boolean>>(new Map());
+  const [duplicateGroups, setDuplicateGroups] = useState<Map<string, any[]>>(new Map());
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
+  const [isMergeModalOpen, setIsMergeModalOpen] = useState(false);
 
   const [loading,setLoading] =  useState<Boolean>(true);
   const [tableReady,setTableReady] =  useState<Boolean>(false); 
@@ -44,22 +50,7 @@ const DataAnalyticsPage = () => {
 const entityStr = sessionStorage.getItem("selectedEntity");
   const loadDbData = () => {
     const raw = sessionStorage.getItem("DB_DATA");
-    return raw ? JSON.parse(raw) : [{
-    "First Name": "John",
-    "Last Name": "Doe",
-    "Email": "john.doe@example.com",
-    "Phone": "555-0100",
-    "Title": "123 Main St",
-    "Department": "Springfield",
-    "Account": "IL"
-},{"Account":"OR",
-  "Department":"Portland",
-  "Email":"alice.w@example.com",
-  "First Name":"Alice",
-  "Last Name":"Williams",
-  "Phone":"555-0101",
-  "Title":"123 Main St"
-}];
+    return raw ? JSON.parse(raw) : [...TableData];
   };
 
   const indexByKey = (rows: any[], key: string) => {
@@ -102,6 +93,40 @@ const entityStr = sessionStorage.getItem("selectedEntity");
     return result;
   };
 
+  const detectDuplicates = (rows: any[]) => {
+    const groups = new Map<string, any[]>();
+    
+    // Single pass to group
+    rows.forEach(row => {
+      const key = row[MATCH_KEY];
+      if (key) {
+        if (!groups.has(key)) {
+          groups.set(key, []);
+        }
+        groups.get(key)!.push(row);
+      }
+    });
+
+    const duplicates = new Map<string, boolean>();
+    const duplicateGroups = new Map<string, any[]>();
+
+    // Filter groups with >1 item
+    groups.forEach((group, key) => {
+      if (group.length > 1) {
+        duplicates.set(key, true);
+        duplicateGroups.set(key, group);
+      }
+    });
+
+    setDuplicateGroups(duplicateGroups);
+    return duplicates;
+  };
+
+
+  useEffect(() => {
+    console.log("Duplicates :",duplicateMap);
+  }, [duplicateMap]);
+
 
   const loadAnalyticsData = async () => {
     const allRowsStr = sessionStorage.getItem("allRows");
@@ -136,14 +161,56 @@ const entityStr = sessionStorage.getItem("selectedEntity");
     setOriginalRowMap(indexByKey(dbRows, MATCH_KEY));
     const compared = compareCsvWithDb(mappedCsv, dbRows);
     setComparedRows(compared);
+
+    const duplicates = detectDuplicates(mappedCsv);
+    setDuplicateMap(duplicates);
+
     setLoading(false);
+  };
+
+  const handleSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const handleMerge = (originalRecords: any[], mergedRecord: any) => {
+    // 1. Remove original records from csvData
+    // We use a Set for O(1) lookups and to ensure reference matching works
+    const recordsToRemove = new Set(originalRecords);
+    const newCsvData = csvData.filter(row => !recordsToRemove.has(row));
+    
+    // 2. Add merged record
+    // Mark as MERGED so it doesn't get flagged as new/dup again immediately (though detectDuplicates runs on all)
+    // Actually, if we add it back, and it has the SAME email, it might trigger duplicate detection if there are OTHER rows with same email?
+    // But we just removed all rows with that email (originalRecords).
+    // So the new record is unique for that email.
+    newCsvData.push(mergedRecord);
+
+    setCsvData([...newCsvData]); 
+
+    // 3. Update duplicate map/groups
+    const key = mergedRecord[MATCH_KEY];
+    const newGroups = new Map(duplicateGroups);
+    newGroups.delete(key);
+    setDuplicateGroups(newGroups);
+
+    const newDupMap = new Map(duplicateMap);
+    newDupMap.delete(key);
+    setDuplicateMap(newDupMap);
+
+    // 4. Update row statuses (optional, for green/red highlight)
+    // mergedRecord might need to be checked against DB again.
+    // For now, let's assume if it was a duplicate, it's treated as a "NEW" record if not in DB, 
+    // or we can add a specific "MERGED" logic.
   };
 
   useEffect(() => {
     loadAnalyticsData();
   }, []);
 
-  /** Build lookup maps (performance critical) */
   const newRowMap = useMemo(() => {
     const map = new Map<string, boolean>();
     comparedRows.forEach(r => {
@@ -172,14 +239,29 @@ const entityStr = sessionStorage.getItem("selectedEntity");
     return csvData.filter(row => {
       const isNew = newRowMap.has(row[MATCH_KEY]);
       const isUpdated = updatedRowDiffMap.has(row[MATCH_KEY]);
+      const isDuplicate = duplicateMap.has(row[MATCH_KEY]);
       const isUnchanged = !isNew && !isUpdated;
 
       if (filterStatus === "NEW") return isNew;
       if (filterStatus === "UPDATED") return isUpdated;
+      if (filterStatus === "DUPLICATE") return isDuplicate;
       if (filterStatus === "UNCHANGED") return isUnchanged;
       return true;
     });
-  }, [csvData, filterStatus, newRowMap, updatedRowDiffMap]);
+  }, [csvData, filterStatus, newRowMap, updatedRowDiffMap, duplicateMap]);
+
+  const sortedData = useMemo(() => {
+    if (!sortConfig) return filteredData;
+
+    return [...filteredData].sort((a, b) => {
+      const aValue = a[sortConfig.key] || "";
+      const bValue = b[sortConfig.key] || "";
+
+      if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [filteredData, sortConfig]);
 
    if (loading) {
     return (
@@ -228,8 +310,9 @@ const showLoader = loading || !tableReady
                 <DropdownMenuSeparator />
                 <DropdownMenuRadioGroup value={filterStatus} onValueChange={setFilterStatus}>
                   <DropdownMenuRadioItem value="ALL">All Records</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="NEW">Created (Green)</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="UPDATED">Modified (Red)</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="NEW">Created</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="UPDATED">Modified</DropdownMenuRadioItem>
+                  <DropdownMenuRadioItem value="DUPLICATE">Duplicates</DropdownMenuRadioItem>
                   <DropdownMenuRadioItem value="UNCHANGED">Unchanged</DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
               </DropdownMenuContent>
@@ -256,6 +339,15 @@ const showLoader = loading || !tableReady
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
+
+            {duplicateGroups.size > 0 && (
+              <Button 
+                onClick={() => setIsMergeModalOpen(true)}
+                className="bg-red-500 hover:bg-red-600 text-white font-semibold"
+              >
+                Resolve Duplicates ({duplicateGroups.size})
+              </Button>
+            )}
           </div>
         </CardHeader>
         
@@ -263,13 +355,16 @@ const showLoader = loading || !tableReady
             <div className=" flex flex-col gap-3">
       <VirtualizedCsvTable
       onReady={()=>{setTableReady(true)}}
-        csvData={filteredData}
+        csvData={sortedData}
         headers={headers.filter(h => visibleColumns.has(h))}
         matchKey={MATCH_KEY}
         newRowMap={newRowMap}
         updatedRowDiffMap={updatedRowDiffMap}
+        duplicateMap={duplicateMap}
         originalRowMap={originalRowMap}
         height={400}
+        sortConfig={sortConfig}
+        onSort={handleSort}
         />  
         </div>
 
@@ -298,6 +393,12 @@ const showLoader = loading || !tableReady
         </CardContent>
       </Card>
     </div>
+    <DuplicateResolveModal 
+      isOpen={isMergeModalOpen}
+      onClose={() => setIsMergeModalOpen(false)}
+      duplicateGroups={duplicateGroups}
+      onMerge={handleMerge}
+    />
     </div>}
     </>
   );
