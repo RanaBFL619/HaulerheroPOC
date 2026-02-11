@@ -1,6 +1,8 @@
 // Mock API service for future integration
 // Replace these functions with actual API calls when backend is ready
 
+import { getTargetColumnsForEntity } from '@/constants/targetColumns';
+
 export interface LoginCredentials {
   email: string;
   password: string;
@@ -62,22 +64,15 @@ export const api = {
     };
   },
 
-  // Auto-map fields for a specific entity
+  // Auto-map fields for a specific entity (100 target columns per entity)
   autoMapFields: async (headers: string[], entityName?: string): Promise<FieldMapping[]> => {
     await delay(2000);
-    
-    // Different target fields based on entity type
-    const entityFieldMaps: { [key: string]: string[] } = {
-      'Account': ['Account Name', 'Industry', 'Annual Revenue', 'Website', 'Phone', 'Country', 'Unmapped'],
-      'Contact': ['First Name', 'Last Name', 'Email', 'Phone', 'Title', 'Department', 'Account', 'Unmapped'],
-      'Opportunity': ['Opportunity Name', 'Amount', 'Stage', 'Close Date', 'Probability', 'Account', 'Owner', 'Unmapped']
-    };
 
-    const targetFields = entityFieldMaps[entityName || 'Contact'] || ['First Name', 'Last Name', 'Email', 'Phone', 'Address', 'City', 'State', 'Zip Code', 'Unmapped'];
-    
+    const targetFields = getTargetColumnsForEntity(entityName || 'Contact');
+
     const mappings: FieldMapping[] = headers.map((header, index) => ({
       sourceField: header,
-      targetField: index < targetFields.length ? targetFields[index] : 'Unmapped'
+      targetField: index < targetFields.length ? targetFields[index] : targetFields.at(-1)!
     }));
 
     return mappings;
