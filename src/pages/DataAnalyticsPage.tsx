@@ -27,8 +27,8 @@ const DataAnalyticsPage = () => {
   const [comparedRows, setComparedRows] = useState<any[]>([]);
   const [originalRowMap, setOriginalRowMap] = useState<Map<string, any>>(new Map());
 
-  const [loading,setLoading] =  useState<Boolean>(true);
-  const [tableReady,setTableReady] =  useState<Boolean>(false); 
+  const [loading, setLoading] = useState<Boolean>(true);
+  const [tableReady, setTableReady] = useState<Boolean>(false);
   const [visibleColumns, setVisibleColumns] = useState<Set<string>>(new Set());
 
   const toggleColumn = (column: string) => {
@@ -39,27 +39,28 @@ const DataAnalyticsPage = () => {
       newVisible.add(column);
     }
     setVisibleColumns(newVisible);
-  }; 
+  };
 
-const entityStr = sessionStorage.getItem("selectedEntity");
+  const entityStr = sessionStorage.getItem("selectedEntity");
   const loadDbData = () => {
     const raw = sessionStorage.getItem("DB_DATA");
     return raw ? JSON.parse(raw) : [{
-    "First Name": "John",
-    "Last Name": "Doe",
-    "Email": "john.doe@example.com",
-    "Phone": "555-0100",
-    "Title": "123 Main St",
-    "Department": "Springfield",
-    "Account": "IL"
-},{"Account":"OR",
-  "Department":"Portland",
-  "Email":"alice.w@example.com",
-  "First Name":"Alice",
-  "Last Name":"Williams",
-  "Phone":"555-0101",
-  "Title":"123 Main St"
-}];
+      "First Name": "John",
+      "Last Name": "Doe",
+      "Email": "john.doe@example.com",
+      "Phone": "555-0100",
+      "Title": "123 Main St",
+      "Department": "Springfield",
+      "Account": "IL"
+    }, {
+      "Account": "OR",
+      "Department": "Portland",
+      "Email": "alice.w@example.com",
+      "First Name": "Alice",
+      "Last Name": "Williams",
+      "Phone": "555-0101",
+      "Title": "123 Main St"
+    }];
   };
 
   const indexByKey = (rows: any[], key: string) => {
@@ -106,7 +107,7 @@ const entityStr = sessionStorage.getItem("selectedEntity");
   const loadAnalyticsData = async () => {
     const allRowsStr = sessionStorage.getItem("allRows");
     const allMappingsStr = sessionStorage.getItem("allEntityMappings");
-    
+
 
     if (!allRowsStr || !allMappingsStr) {
       navigate("/upload");
@@ -181,124 +182,123 @@ const entityStr = sessionStorage.getItem("selectedEntity");
     });
   }, [csvData, filterStatus, newRowMap, updatedRowDiffMap]);
 
-   if (loading) {
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-950 dark:via-blue-950/30 dark:to-indigo-950/30">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-600 dark:text-blue-400 mx-auto" />
+          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
           <p className="mt-4 text-muted-foreground">Loading analytics data...</p>
         </div>
       </div>
     );
   }
-const showLoader = loading || !tableReady
+  const showLoader = loading || !tableReady
 
   return (
-<>
-    {showLoader &&  <><div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-950 dark:via-blue-950/30 dark:to-indigo-950/30">
+    <>
+      {showLoader && <><div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-600 dark:text-blue-400 mx-auto" />
+          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
           <p className="mt-4 text-muted-foreground">Loading analytics data...</p>
         </div>
       </div> </>
-    }
-    {  <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-950 dark:via-blue-950/30 dark:to-indigo-950/30 p-4 md:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">Data Analytics</h1>
-          <p className="text-sm text-muted-foreground mt-1">View the Data as per the changes</p>
-        </div>
-        <Card className="shadow-xl border-0 backdrop-blur-sm bg-white/80 dark:bg-gray-900/80 animate-in">
-        <CardHeader className="pb-4 flex flex-row items-center justify-between space-y-0">
-          <div>
-            <CardTitle className="text-2xl">Entity Changes Preview</CardTitle>
-            <CardDescription className="text-base mt-1">
-              The Selected Entity : {entityStr} will have the following changes.
-            </CardDescription>
+      }
+      {<div className="min-h-screen bg-background p-4 md:p-6 lg:p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8">
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground">Data Analytics</h1>
+            <p className="text-sm text-muted-foreground mt-1">View the Data as per the changes</p>
           </div>
-          <div className="flex gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button className="flex-1 sm:flex-none h-10 px-4 py-2 rounded-lg border-2 border-input bg-white dark:bg-gray-900 text-foreground dark:text-blue-300 hover:border-blue-500 dark:hover:border-blue-500 focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 font-medium shadow-sm hover:bg-white">
-                  <Filter className="mr-2 h-4 w-4" /> Filter <ChevronDown className="ml-2 h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 border-2 border-blue-100 dark:border-blue-800 bg-white dark:bg-gray-900 text-foreground dark:text-blue-300">
-                <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuRadioGroup value={filterStatus} onValueChange={setFilterStatus}>
-                  <DropdownMenuRadioItem value="ALL">All Records</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="NEW">Created (Green)</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="UPDATED">Modified (Red)</DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="UNCHANGED">Unchanged</DropdownMenuRadioItem>
-                </DropdownMenuRadioGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
+          <Card className="shadow-lg border border-border bg-card animate-in">
+            <CardHeader className="pb-4 flex flex-row items-center justify-between space-y-0">
+              <div>
+                <CardTitle className="text-2xl">Entity Changes Preview</CardTitle>
+                <CardDescription className="text-base mt-1">
+                  The Selected Entity : {entityStr} will have the following changes.
+                </CardDescription>
+              </div>
+              <div className="flex gap-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="flex-1 sm:flex-none h-10 px-4 py-2 font-medium">
+                      <Filter className="mr-2 h-4 w-4" /> Filter <ChevronDown className="ml-2 h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuRadioGroup value={filterStatus} onValueChange={setFilterStatus}>
+                      <DropdownMenuRadioItem value="ALL">All Records</DropdownMenuRadioItem>
+                      <DropdownMenuRadioItem value="NEW">Created (Green)</DropdownMenuRadioItem>
+                      <DropdownMenuRadioItem value="UPDATED">Modified (Red)</DropdownMenuRadioItem>
+                      <DropdownMenuRadioItem value="UNCHANGED">Unchanged</DropdownMenuRadioItem>
+                    </DropdownMenuRadioGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button className="flex-1 sm:flex-none h-10 px-4 py-2 rounded-lg border-2 border-input bg-white dark:bg-gray-900 text-foreground dark:text-blue-300 hover:border-blue-500 dark:hover:border-blue-500 focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 font-medium shadow-sm hover:bg-white ">
-                  Columns <ChevronDown className="ml-2 h-4 w-4" />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="flex-1 sm:flex-none h-10 px-4 py-2 font-medium">
+                      Columns <ChevronDown className="ml-2 h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuLabel>Toggle Columns</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {headers.map((column) => (
+                      <DropdownMenuCheckboxItem
+                        key={column}
+                        className="capitalize"
+                        checked={visibleColumns.has(column)}
+                        onCheckedChange={() => toggleColumn(column)}
+                      >
+                        {column}
+                      </DropdownMenuCheckboxItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </CardHeader>
+
+            <CardContent>
+              <div className=" flex flex-col gap-3">
+                <VirtualizedCsvTable
+                  onReady={() => { setTableReady(true) }}
+                  csvData={filteredData}
+                  headers={headers.filter(h => visibleColumns.has(h))}
+                  matchKey={MATCH_KEY}
+                  newRowMap={newRowMap}
+                  updatedRowDiffMap={updatedRowDiffMap}
+                  originalRowMap={originalRowMap}
+                  height={400}
+                />
+              </div>
+
+              <div className="flex flex-col sm:flex-row justify-between gap-3 pt-4 border-t">
+                <Button
+                  variant="outline"
+                  onClick={() => navigate('/data-preview')}
+                  className="w-full sm:w-auto order-2 sm:order-1"
+                >
+                  <svg className="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                  Back
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 border-2 border-blue-100 dark:border-blue-800 bg-white dark:bg-gray-900 text-foreground dark:text-blue-300">
-                <DropdownMenuLabel>Toggle Columns</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {headers.map((column) => (
-                  <DropdownMenuCheckboxItem
-                    key={column}
-                    className="capitalize"
-                    checked={visibleColumns.has(column)}
-                    onCheckedChange={() => toggleColumn(column)}
-                  >
-                    {column}
-                  </DropdownMenuCheckboxItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </CardHeader>
-        
-        <CardContent>
-            <div className=" flex flex-col gap-3">
-      <VirtualizedCsvTable
-      onReady={()=>{setTableReady(true)}}
-        csvData={filteredData}
-        headers={headers.filter(h => visibleColumns.has(h))}
-        matchKey={MATCH_KEY}
-        newRowMap={newRowMap}
-        updatedRowDiffMap={updatedRowDiffMap}
-        originalRowMap={originalRowMap}
-        height={400}
-        />  
+                <Button
+                  className="w-full sm:w-auto px-8 h-11 font-semibold order-1 sm:order-2"
+                  onClick={() => { navigate('/complete') }}
+                >
+                  Process Data
+                  <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-
-        <div className="flex flex-col sm:flex-row justify-between gap-3 pt-4 border-t">
-              <Button 
-                variant="outline" 
-                onClick={() => navigate('/data-preview')}
-                className="w-full sm:w-auto order-2 sm:order-1"
-              >
-                <svg className="mr-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                Back
-              </Button>
-              <Button 
-
-                className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-200 px-8 h-11 order-1 sm:order-2"
-              onClick={()=>{navigate('/complete')}}
-              >
-                Process Data
-                <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </Button>
-            </div>
-        </CardContent>
-      </Card>
-    </div>
-    </div>}
+      </div>}
     </>
   );
 };

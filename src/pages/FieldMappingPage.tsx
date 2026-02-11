@@ -102,7 +102,7 @@ function buildNodesAndEdges(
         target: `${TARGET_PREFIX}${m.targetField}`,
         type: 'default',
         pathOptions: { curvature: 0.5 },
-        style: { stroke: 'rgb(234, 179, 8)', strokeWidth: 2.5 },
+        style: { stroke: 'hsl(211, 88%, 52%)', strokeWidth: 2.5 },
         deletable: true,
       }) as Edge
     );
@@ -211,7 +211,7 @@ export function FieldMappingPage() {
             target: targetId,
             type: 'default',
             pathOptions: { curvature: 0.5 },
-            style: { stroke: 'rgb(234, 179, 8)', strokeWidth: 2.5 },
+            style: { stroke: 'hsl(211, 88%, 52%)', strokeWidth: 2.5 },
             deletable: true,
           } as Edge,
         ])
@@ -241,9 +241,9 @@ export function FieldMappingPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-950 dark:via-blue-950/30 dark:to-indigo-950/30">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-600 dark:text-blue-400 mx-auto" />
+          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
           <p className="mt-4 text-muted-foreground">Loading mappings...</p>
         </div>
       </div>
@@ -251,20 +251,18 @@ export function FieldMappingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-950 dark:via-blue-950/30 dark:to-indigo-950/30 p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-background p-4 md:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
-            Field Mapping
-          </h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground">Field Mapping</h1>
           <p className="text-sm text-muted-foreground mt-1">Map source fields to target entities by dragging from source to destination</p>
         </div>
 
-        <Card className="shadow-xl border-0 backdrop-blur-sm bg-white/80 dark:bg-gray-900/80 animate-in">
+        <Card className="shadow-lg border border-border bg-card animate-in">
           <CardHeader className="pb-4">
             <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-md">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center shadow-sm">
+                <svg className="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
               </div>
@@ -277,7 +275,7 @@ export function FieldMappingPage() {
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="p-5 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 rounded-xl border-2 border-blue-200 dark:border-blue-800">
+            <div className="p-5 bg-muted/50 rounded-xl border border-border">
               <label htmlFor="entity-mapping-select" className="text-sm font-semibold text-foreground mb-2 block">
                 Select Entity
               </label>
@@ -285,7 +283,7 @@ export function FieldMappingPage() {
                 id="entity-mapping-select"
                 value={selectedEntity}
                 onChange={(e) => handleEntityChange(e.target.value)}
-                className="flex-1 max-w-xs h-11 px-4 py-2 rounded-lg border-2 border-input bg-white dark:bg-gray-900 text-foreground hover:border-blue-500 dark:hover:border-blue-500 focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 font-medium shadow-sm"
+                className="flex-1 max-w-xs h-11 px-4 py-2 rounded-lg border border-input bg-background text-foreground hover:border-primary/60 focus:border-primary focus:ring-2 focus:ring-ring transition-colors font-medium"
               >
                 {sheets.map((sheet) => (
                   <option key={sheet.name} value={sheet.name}>
@@ -368,7 +366,7 @@ export function FieldMappingPage() {
               <Button
                 onClick={handleNext}
                 disabled={processing}
-                className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-200 px-8 h-11 order-1 sm:order-2"
+                className="w-full sm:w-auto px-8 h-11 font-semibold order-1 sm:order-2"
               >
                 {processing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Next Step

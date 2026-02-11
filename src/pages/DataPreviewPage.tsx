@@ -379,9 +379,9 @@ export function DataPreviewPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-950 dark:via-blue-950/30 dark:to-indigo-950/30">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-600 dark:text-blue-400 mx-auto" />
+          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
           <p className="mt-4 text-muted-foreground">Loading preview data...</p>
         </div>
       </div>
@@ -389,20 +389,20 @@ export function DataPreviewPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-950 dark:via-blue-950/30 dark:to-indigo-950/30 p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-background p-4 md:p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">Data Preview</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-foreground">Data Preview</h1>
           <p className="text-sm text-muted-foreground mt-1">Review and select data for processing</p>
         </div>
 
-        <Card className="shadow-xl border-0 backdrop-blur-sm bg-white/80 dark:bg-gray-900/80 animate-in">
+        <Card className="shadow-lg border border-border bg-card animate-in">
           <CardHeader className="pb-4">
             <div className="flex flex-col lg:flex-row justify-between items-start gap-4">
               <div className="flex-1 space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-md">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center shadow-sm">
+                    <svg className="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                   </div>
@@ -414,7 +414,7 @@ export function DataPreviewPage() {
                   </div>
                 </div>
 
-                <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/30 dark:to-purple-950/30 rounded-xl border-2 border-blue-200 dark:border-blue-800">
+                <div className="p-4 bg-muted/50 rounded-xl border border-border">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                     <label htmlFor="entity-select" className="font-semibold text-foreground text-sm">
                       Entity:
@@ -423,7 +423,7 @@ export function DataPreviewPage() {
                       id="entity-select"
                       value={selectedEntity}
                       onChange={(e) => handleEntityChange(e.target.value)}
-                      className="flex-1 sm:flex-none h-10 px-4 py-2 rounded-lg border-2 border-input bg-white dark:bg-gray-900 text-foreground hover:border-blue-500 dark:hover:border-blue-500 focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 font-medium shadow-sm"
+                      className="flex-1 sm:flex-none h-10 px-4 py-2 rounded-lg border border-input bg-background text-foreground hover:border-primary/60 focus:border-primary focus:ring-2 focus:ring-ring transition-colors font-medium"
                     >
                       {ENTITIES.map((entity) => (
                         <option key={entity} value={entity}>
@@ -431,17 +431,17 @@ export function DataPreviewPage() {
                         </option>
                       ))}
                     </select>
-                    <span className="text-sm font-medium bg-white dark:bg-gray-800 px-3 py-1.5 rounded-lg shadow-sm">
+                    <span className="text-sm font-medium bg-muted px-3 py-1.5 rounded-lg border border-border">
                       {checkedRows[selectedEntity]?.size || 0} selected of {data.length} rows
                     </span>
                   </div>
                 </div>
               </div>
               <Button
-                variant="outline"
+                variant="secondary"
                 onClick={generateMappingPDF}
                 disabled={generating || !checkedRows[selectedEntity]?.size}
-                className="w-full lg:w-auto mt-2 lg:mt-8 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-200"
+                className="w-full lg:w-auto mt-2 lg:mt-8 font-semibold"
               >
                 <Download className="mr-2 h-4 w-4" />
                 {generating ? 'Generating...' : 'Download Report'}
@@ -451,14 +451,14 @@ export function DataPreviewPage() {
           <CardContent className="space-y-6">
 
             {/* Data Table */}
-            <div className="border-2 rounded-xl overflow-hidden shadow-lg bg-white dark:bg-gray-900">
-              <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3">
+            <div className="border border-border rounded-xl overflow-hidden shadow-sm bg-card">
+              <div className="bg-primary text-primary-foreground px-6 py-3">
                 <h3 className="font-semibold text-lg">Data Table</h3>
               </div>
               <div className="max-h-96 overflow-auto">
                 {data.length > 0 ? (
                   <Table>
-                    <TableHeader className="bg-gray-50 dark:bg-gray-800 sticky top-0">
+                    <TableHeader className="bg-muted sticky top-0">
                       <TableRow>
                         <TableHead className="w-12">
                           <input
@@ -477,7 +477,7 @@ export function DataPreviewPage() {
                     </TableHeader>
                     <TableBody>
                       {data.map((row, rowIndex) => (
-                        <TableRow key={rowIndex} className="hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-colors">
+                        <TableRow key={rowIndex} className="hover:bg-muted/50 transition-colors">
                           <TableCell className="w-12">
                             <input
                               type="checkbox"
@@ -519,10 +519,10 @@ export function DataPreviewPage() {
                 </svg>
                 Back
               </Button>
-              <Button 
-                onClick={handleNext} 
+              <Button
+                onClick={handleNext}
                 disabled={processing || !checkedRows[selectedEntity]?.size}
-                className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-200 px-8 h-11 order-1 sm:order-2"
+                className="w-full sm:w-auto px-8 h-11 font-semibold order-1 sm:order-2"
               >
                 {processing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Process Data

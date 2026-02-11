@@ -13,10 +13,10 @@ export function Footer() {
       <div className="container flex flex-col sm:flex-row items-center justify-between gap-4 py-6 px-4 md:px-8">
         <div className="flex flex-col items-center sm:items-start gap-1">
           <p className="text-sm font-semibold text-foreground">
-            Data Processing Engine
+            Hauler Hero
           </p>
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} All rights reserved
+            © {new Date().getFullYear()} Hauler Hero. All rights reserved.
           </p>
         </div>
 
