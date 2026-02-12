@@ -4,6 +4,7 @@ import Papa from 'papaparse';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Upload, Loader2 } from 'lucide-react';
+import { PAGE_OUTER, PAGE_CONTAINER } from '@/constants/layout';
 import type { SheetData } from '@/services/api';
 
 export function UploadPage() {
@@ -76,8 +77,8 @@ export function UploadPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className={PAGE_OUTER}>
+      <div className={PAGE_CONTAINER}>
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-foreground">Upload Data</h1>
           <p className="text-sm text-muted-foreground mt-1">Upload and process your CSV files</p>

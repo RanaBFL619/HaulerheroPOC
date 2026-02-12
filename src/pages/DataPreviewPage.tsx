@@ -7,6 +7,7 @@ import { api } from '@/services/api';
 import { Loader2, Download } from 'lucide-react';
 import jsPDF from 'jspdf';
 import type { FieldMapping } from '@/services/api';
+import { PAGE_OUTER, PAGE_CONTAINER } from '@/constants/layout';
 
 const ENTITIES = ['Account', 'Contact', 'Opportunity'];
 
@@ -389,8 +390,8 @@ export function DataPreviewPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className={PAGE_OUTER}>
+      <div className={PAGE_CONTAINER}>
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-foreground">Data Preview</h1>
           <p className="text-sm text-muted-foreground mt-1">Review and select data for processing</p>

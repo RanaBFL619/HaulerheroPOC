@@ -22,6 +22,7 @@ import type { FieldMapping, SheetData } from '@/services/api';
 import { Loader2, Search } from 'lucide-react';
 import { SourceFieldNode, TargetFieldNode } from '@/components/field-mapping';
 import { getTargetColumnsForEntity } from '@/constants/targetColumns';
+import { PAGE_OUTER, PAGE_CONTAINER } from '@/constants/layout';
 
 const ROW_HEIGHT = 44;
 const SOURCE_X = 0;
@@ -251,8 +252,8 @@ export function FieldMappingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-6 lg:p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className={PAGE_OUTER}>
+      <div className={PAGE_CONTAINER}>
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-foreground">Field Mapping</h1>
           <p className="text-sm text-muted-foreground mt-1">Map source fields to target entities by dragging from source to destination</p>

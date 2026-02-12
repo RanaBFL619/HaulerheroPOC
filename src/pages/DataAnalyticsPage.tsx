@@ -17,6 +17,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import { IMPORT_STATS_KEY, type ImportStats } from "@/types/importStats";
+import { PAGE_OUTER, PAGE_CONTAINER } from "@/constants/layout";
+
 const MATCH_KEY = "Email";
 
 const DataAnalyticsPage = () => {
@@ -203,8 +206,8 @@ const DataAnalyticsPage = () => {
         </div>
       </div> </>
       }
-      {<div className="min-h-screen bg-background p-4 md:p-6 lg:p-8">
-        <div className="max-w-7xl mx-auto">
+      {<div className={PAGE_OUTER}>
+        <div className={PAGE_CONTAINER}>
           <div className="mb-8">
             <h1 className="text-3xl md:text-4xl font-bold text-foreground">Data Analytics</h1>
             <p className="text-sm text-muted-foreground mt-1">View the Data as per the changes</p>
@@ -287,7 +290,25 @@ const DataAnalyticsPage = () => {
                 </Button>
                 <Button
                   className="w-full sm:w-auto px-8 h-11 font-semibold order-1 sm:order-2"
-                  onClick={() => { navigate('/complete') }}
+                  onClick={() => {
+                    const total = csvData.length;
+                    const inserted = newRowMap.size;
+                    const updated = updatedRowDiffMap.size;
+                    const unchanged = total - inserted - updated;
+                    const uniqueKeys = new Set(csvData.map((r) => r[MATCH_KEY])).size;
+                    const duplicatesInFile = Math.max(0, total - uniqueKeys);
+                    const stats: ImportStats = {
+                      entity: entityStr || null,
+                      totalRows: total,
+                      inserted,
+                      updated,
+                      unchanged,
+                      duplicatesInFile,
+                      timestamp: new Date().toISOString(),
+                    };
+                    sessionStorage.setItem(IMPORT_STATS_KEY, JSON.stringify(stats));
+                    navigate("/complete");
+                  }}
                 >
                   Process Data
                   <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
